@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { chat, isAiConfigured } from "@/domains/ai/provider";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 const bodySchema = z.object({
   cityName: z.string().min(1).max(80),
@@ -16,6 +18,15 @@ const bodySchema = z.object({
  * admin panel to extend the question bank.
  */
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const rl = checkRateLimit(`${ip}:/api/ai/generate-questions`, 5, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas peticiones. Espera un momento." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } },
+    );
+  }
+
   if (!isAiConfigured()) {
     return NextResponse.json({ error: "IA no configurada" }, { status: 503 });
   }
@@ -47,7 +58,7 @@ export async function POST(request: Request) {
     const data = JSON.parse(raw);
     return NextResponse.json(data);
   } catch (err) {
-    console.error("AI generate error:", err);
+    logger.error("AI generate-questions failed", { route: "/api/ai/generate-questions", error: String(err) });
     return NextResponse.json({ error: "No se pudieron generar preguntas" }, { status: 502 });
   }
 }

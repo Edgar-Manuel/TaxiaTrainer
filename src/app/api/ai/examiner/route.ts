@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { chat, isAiConfigured, type ChatMessage } from "@/domains/ai/provider";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 const bodySchema = z.object({
   cityName: z.string().min(1).max(80),
@@ -34,6 +36,15 @@ ${context}
 `.trim();
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const rl = checkRateLimit(`${ip}:/api/ai/examiner`, 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas peticiones. Espera un momento." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } },
+    );
+  }
+
   if (!isAiConfigured()) {
     return NextResponse.json(
       { error: "IA no configurada. Añade AI_API_KEY en el servidor." },
@@ -54,7 +65,7 @@ export async function POST(request: Request) {
     ]);
     return NextResponse.json({ reply });
   } catch (err) {
-    console.error("AI examiner error:", err);
+    logger.error("AI examiner failed", { route: "/api/ai/examiner", error: String(err) });
     return NextResponse.json(
       { error: "El proveedor de IA no respondió" },
       { status: 502 },
