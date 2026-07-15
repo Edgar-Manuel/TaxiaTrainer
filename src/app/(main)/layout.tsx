@@ -45,7 +45,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV.map((item) => {
-            const active = pathname.startsWith(item.href);
+            const active =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
@@ -97,7 +98,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t-2 bg-card py-1.5 md:hidden">
         {NAV.slice(0, 5).map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}

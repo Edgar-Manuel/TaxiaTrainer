@@ -99,42 +99,57 @@ export interface RouteGraph {
   edges: Map<string, GraphEdge[]>;
 }
 
+/** Grid size (~30 m) used to merge nearby points into one graph node. */
+const CLUSTER_DEG = 0.0003;
+
 /**
- * Builds a routable graph: nodes are intersections, edges connect
- * consecutive intersections along each street.
+ * Builds a routable graph. Nodes are intersections AND street endpoints,
+ * clustered by proximity so streets that touch end-to-end connect; edges
+ * link consecutive nodes along each street line.
  */
 export function buildRouteGraph(city: CityData): RouteGraph {
   const nodes = new Map<string, GraphNode>();
   const edges = new Map<string, GraphEdge[]>();
 
+  const nodeIdFor = (point: LngLat): string => {
+    const id = `${Math.round(point[0] / CLUSTER_DEG)}:${Math.round(point[1] / CLUSTER_DEG)}`;
+    if (!nodes.has(id)) nodes.set(id, { id, point });
+    return id;
+  };
+
+  // Register every candidate junction point.
+  for (const x of city.intersections) nodeIdFor(x.point);
+  for (const street of city.streets) {
+    for (const line of lines(street.geojson)) {
+      nodeIdFor(line[0]);
+      nodeIdFor(line[line.length - 1]);
+    }
+  }
+
   const addEdge = (from: string, to: string, weightM: number, streetId: string) => {
+    if (from === to) return;
     const list = edges.get(from) ?? [];
     list.push({ to, weightM, streetId });
     edges.set(from, list);
   };
 
-  for (const x of city.intersections) {
-    nodes.set(x.id, { id: x.id, point: x.point });
-  }
-
+  // Connect consecutive nodes along each street line.
+  const allNodes = [...nodes.values()];
   for (const street of city.streets) {
-    const xs = city.intersectionsByStreet.get(street.id) ?? [];
-    if (xs.length < 2) continue;
     for (const line of lines(street.geojson)) {
       const lineFeature = { type: "LineString" as const, coordinates: line };
-      const onLine = xs
-        .map((x) => {
-          const snapped = nearestPointOnLine(lineFeature, x.point, {
+      const onLine = allNodes
+        .map((node) => {
+          const snapped = nearestPointOnLine(lineFeature, node.point, {
             units: "kilometers",
           });
           return {
-            id: x.id,
-            point: x.point,
+            id: node.id,
             offsetKm: snapped.properties.location,
             distKm: snapped.properties.dist ?? Infinity,
           };
         })
-        .filter((p) => p.distKm * 1000 < 30)
+        .filter((p) => p.distKm * 1000 < 35)
         .sort((a, b) => a.offsetKm - b.offsetKm);
 
       for (let i = 0; i + 1 < onLine.length; i++) {
