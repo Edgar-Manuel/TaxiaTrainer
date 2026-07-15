@@ -1,9 +1,4 @@
-import type {
-  AreaGeometry,
-  LngLat,
-  PointGeometry,
-  StreetGeometry,
-} from "./geo";
+import type { AreaGeometry, LngLat, StreetGeometry } from "./geo";
 
 export type UserRole = "user" | "admin";
 export type CityStatus = "draft" | "importing" | "ready";

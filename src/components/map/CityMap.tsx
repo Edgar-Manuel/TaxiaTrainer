@@ -151,7 +151,6 @@ export function CityMap({
       attributeFilter: ["class"],
     });
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveStyle]);
 
   // Overlay updates.
@@ -159,7 +158,6 @@ export function CityMap({
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
     applyOverlays(map);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlights, markers, heatmapPoints]);
 
   // Fit to geometry.
