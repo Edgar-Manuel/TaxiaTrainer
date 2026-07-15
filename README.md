@@ -80,13 +80,18 @@ un dataset local en lugar de escribir en la base de datos.
 
 ## 🤖 Configurar la IA
 
-Cualquier endpoint compatible con la API de OpenAI:
+Cualquier endpoint compatible con la API de OpenAI (OpenRouter, OpenAI directo, DeepSeek, etc.):
 
 ```bash
-AI_API_KEY=sk-...
-AI_MODEL=gpt-4o-mini
-# Opcional, para cambiar de proveedor:
-AI_BASE_URL=https://api.deepseek.com/v1       # DeepSeek
+AI_API_KEY=sk-or-...
+AI_MODEL=google/gemini-2.5-flash
+AI_BASE_URL=https://openrouter.ai/api/v1
+
+# O otras alternativas:
+# AI_API_KEY=sk-...
+# AI_MODEL=gpt-4o-mini
+# AI_BASE_URL=https://api.openai.com/v1
+# AI_BASE_URL=https://api.deepseek.com/v1       # DeepSeek
 # AI_BASE_URL=http://localhost:11434/v1       # Ollama local
 ```
 
