@@ -16,6 +16,7 @@ import { isDue } from "@/domains/srs/sm2";
 import { buildSummary, useGame } from "@/stores/game-store";
 import { useProgress, type RecordedSession } from "@/stores/progress-store";
 import type { Question, QuestionResult, QuestionType } from "@/types/game";
+import { AiExplainButton } from "./AiExplainButton";
 import { ChoiceQuestionView } from "./ChoiceQuestionView";
 import { MapClickQuestionView } from "./MapClickQuestionView";
 import { MemoryQuestionView } from "./MemoryQuestionView";
@@ -241,6 +242,7 @@ export function GameSession({ city, mode }: Props) {
                       `Puntuación parcial: ${Math.round(feedback.score * 100)}%. `}
                     {feedback.question.explanation}
                   </div>
+                  <AiExplainButton city={city} result={feedback} />
                 </div>
                 <Button
                   variant={feedback.correct ? "default" : "destructive"}
