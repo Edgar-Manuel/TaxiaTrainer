@@ -37,11 +37,11 @@ const nextConfig: NextConfig = {
             // Styles: self + inline (Tailwind, component styles)
             "style-src 'self' 'unsafe-inline'",
             // Images: self + data URIs + tile providers + blob
-            "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://basemaps.cartocdn.com https://server.arcgisonline.com https://api.maptiler.com",
+            "img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://server.arcgisonline.com https://api.maptiler.com",
             // Fonts: self + Google Fonts
             "font-src 'self' https://fonts.gstatic.com",
             // Connect: self + Supabase + tile providers + MapTiler + AI (any external base URL)
-            "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://basemaps.cartocdn.com https://server.arcgisonline.com https://api.maptiler.com https://nominatim.openstreetmap.org",
+            "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://server.arcgisonline.com https://api.maptiler.com https://nominatim.openstreetmap.org https://demotiles.maplibre.org",
             // Workers: self + blob (MapLibre GL workers)
             "worker-src 'self' blob:",
             // Child/frame: none
