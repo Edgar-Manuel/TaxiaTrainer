@@ -104,7 +104,7 @@ export interface Intersection {
   city_id: string;
   street_a_id: string;
   street_b_id: string;
-  point: PointGeometry;
+  point: LngLat;
 }
 
 export interface Place {
